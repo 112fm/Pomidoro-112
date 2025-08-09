@@ -1,8 +1,6 @@
 // Простое хранилище
 const store = {
-  get: (k, def) => {
-    try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; }
-  },
+  get: (k, def) => { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } },
   set: (k, v) => localStorage.setItem(k, JSON.stringify(v))
 };
 
@@ -13,10 +11,55 @@ const resetBtn = document.getElementById('reset');
 const applyBtn = document.getElementById('apply');
 const workInput = document.getElementById('workInput');
 const breakInput = document.getElementById('breakInput');
+const testSoundBtn = document.getElementById('testSound');
 
-// Предзагружаем звук и «разблокируем» его при первом клике пользователя
+// 1) Канал через файл (HTMLAudio)
 const bell = new Audio('./bell.wav');
 bell.preload = 'auto';
+bell.playsInline = true;
+
+// 2) Канал через Web Audio API (надёжный для десктопа)
+let ac; // AudioContext
+function ensureAudioUnlocked() {
+  try {
+    if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === 'suspended') ac.resume();
+    // разлочим HTMLAudio (некоторые браузеры требуют жест)
+    if (!bell._unlocked) {
+      const prev = bell.volume;
+      bell.volume = 0;
+      bell.play().then(() => { bell.pause(); bell.currentTime = 0; bell.volume = prev; bell._unlocked = true; }).catch(()=>{});
+    }
+  } catch(e) {}
+}
+['mousedown','touchstart','keydown'].forEach(ev => {
+  window.addEventListener(ev, ensureAudioUnlocked, { once:false, passive:true });
+});
+
+function beepWebAudio() {
+  try {
+    ensureAudioUnlocked();
+    if (!ac) return;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.value = 880; // «дзынь»
+    g.gain.setValueAtTime(0.001, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.2, ac.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.25);
+    o.connect(g).connect(ac.destination);
+    o.start();
+    o.stop(ac.currentTime + 0.27);
+  } catch(e){}
+}
+
+function playBell() {
+  // Пытаемся файл, если не получилось — WebAudio
+  try {
+    bell.currentTime = 0;
+    bell.play().catch(beepWebAudio);
+  } catch(e) { beepWebAudio(); }
+}
 
 let state = store.get('state', {
   work: 25,
@@ -53,18 +96,10 @@ function setDurations(work, rest){
   save();
 }
 
-applyBtn.addEventListener('click', () => {
-  setDurations(+workInput.value, +breakInput.value);
-});
+applyBtn.addEventListener('click', () => setDurations(+workInput.value, +breakInput.value));
 
 startPauseBtn.addEventListener('click', () => {
-  // Разблокируем аудио на iOS/мобильных: короткое беззвучное воспроизведение
-  if(!bell._unlocked){
-    const prevVol = bell.volume;
-    bell.volume = 0;
-    bell.play().then(() => { bell.pause(); bell.currentTime = 0; bell.volume = prevVol; bell._unlocked = true; }).catch(()=>{});
-  }
-
+  ensureAudioUnlocked();
   state.running = !state.running;
   state.lastTick = Date.now();
   startPauseBtn.textContent = state.running ? 'Пауза' : 'Старт';
@@ -79,8 +114,11 @@ resetBtn.addEventListener('click', () => {
   save();
 });
 
-function playBell(){
-  try { bell.currentTime = 0; bell.play().catch(()=>{}); } catch(e){ console.warn('bell error', e); }
+if (testSoundBtn) {
+  testSoundBtn.addEventListener('click', () => {
+    ensureAudioUnlocked();
+    playBell();
+  });
 }
 
 function switchMode(){

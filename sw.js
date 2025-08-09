@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pomodoro-v2';
+const CACHE_NAME = 'pomodoro-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,8 @@ const ASSETS = [
   './app.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './bell.wav'
 ];
 
 self.addEventListener('install', (e) => {
@@ -15,9 +16,7 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(k => (k !== CACHE_NAME) && caches.delete(k)))
-    )
+    caches.keys().then(keys => Promise.all(keys.map(k => (k !== CACHE_NAME) && caches.delete(k))))
   );
 });
 

@@ -14,6 +14,10 @@ const applyBtn = document.getElementById('apply');
 const workInput = document.getElementById('workInput');
 const breakInput = document.getElementById('breakInput');
 
+// Предзагружаем звук и «разблокируем» его при первом клике пользователя
+const bell = new Audio('./bell.wav');
+bell.preload = 'auto';
+
 let state = store.get('state', {
   work: 25,
   rest: 5,
@@ -54,6 +58,13 @@ applyBtn.addEventListener('click', () => {
 });
 
 startPauseBtn.addEventListener('click', () => {
+  // Разблокируем аудио на iOS/мобильных: короткое беззвучное воспроизведение
+  if(!bell._unlocked){
+    const prevVol = bell.volume;
+    bell.volume = 0;
+    bell.play().then(() => { bell.pause(); bell.currentTime = 0; bell.volume = prevVol; bell._unlocked = true; }).catch(()=>{});
+  }
+
   state.running = !state.running;
   state.lastTick = Date.now();
   startPauseBtn.textContent = state.running ? 'Пауза' : 'Старт';
@@ -68,11 +79,15 @@ resetBtn.addEventListener('click', () => {
   save();
 });
 
+function playBell(){
+  try { bell.currentTime = 0; bell.play().catch(()=>{}); } catch(e){ console.warn('bell error', e); }
+}
+
 function switchMode(){
   state.mode = state.mode === 'work' ? 'rest' : 'work';
   modeEl.textContent = state.mode === 'work' ? 'Работа' : 'Отдых';
   state.remaining = (state.mode === 'work' ? state.work : state.rest) * 60;
-  // Вибрация/звук можно добавить позже — минимализм оставим
+  playBell();
 }
 
 function tick(){

@@ -38,6 +38,31 @@ body{
 }
 .field input::-webkit-outer-spin-button, .field input::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
 
+/* Кнопка "Применить" по центру в iOS-стиле */
+#apply {
+  display: block;
+  margin: 20px auto 0 auto; /* центрируем */
+  width: 60%;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  border: none;
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+#apply:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+#apply:active {
+  transform: scale(0.96);
+}
+
 .footer{opacity:0.6; font-size:12px; text-align:center; padding:8px}
 
 /* Установка как standalone на iOS — растяжение на всю высоту */

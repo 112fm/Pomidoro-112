@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pomodoro-v3';
+const CACHE_NAME = 'pomodoro-v4'; // новая версия кэша
 const ASSETS = [
   './',
   './index.html',
@@ -16,7 +16,9 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.map(k => (k !== CACHE_NAME) && caches.delete(k))))
+    caches.keys().then(keys =>
+      Promise.all(keys.map(k => (k !== CACHE_NAME) && caches.delete(k)))
+    )
   );
 });
 

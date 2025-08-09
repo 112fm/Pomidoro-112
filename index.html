@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Помидоро</title>
+  <meta name="theme-color" content="#0b0b0f" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- iOS/стильный шрифт -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="card glass header">
+      <h1>Помидоро</h1>
+      <div class="mode" id="mode">Работа</div>
+    </header>
+
+    <main class="card glass timer-card">
+      <div class="time" id="time">25:00</div>
+      <div class="controls">
+        <button id="startPause" class="btn primary">Старт</button>
+        <button id="reset" class="btn">Сброс</button>
+      </div>
+    </main>
+
+    <section class="card glass settings">
+      <div class="field">
+        <label>Работа (мин)</label>
+        <input type="number" id="workInput" min="1" max="180" step="1" value="25" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label>Отдых (мин)</label>
+        <input type="number" id="breakInput" min="1" max="60" step="1" value="5" inputmode="numeric" />
+      </div>
+      <button id="apply" class="btn full">Применить</button>
+    </section>
+
+    <footer class="footer">Работает офлайн · Установи на экран «Домой»</footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
